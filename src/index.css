@@ -1,27 +1,11 @@
-/* body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-
- */
-
+/* 
 
  body {
   margin: 0;
   padding: 0;
-  /* Pure black background to match the image */
+ 
   background-color: #000000; 
-  /* Pure white text for high contrast */
+
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -30,7 +14,7 @@ code {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* This ensures the React root container also takes up the full background */
+
 #root {
   background-color: #000000;
   min-height: 100vh;
@@ -41,7 +25,21 @@ code {
     monospace;
 }
 
-/* Optional: This makes inputs look more like the dark mode in the image */
-input {
+
   font-family: inherit;
+} */
+
+
+
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: Inter, sans-serif;
 }

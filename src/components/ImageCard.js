@@ -1,260 +1,256 @@
-// import { useState } from "react";
-// import axios from "axios";
-// import BASE_URL from "../api";
-// import { useAuth } from "../context/AuthContext";
-
-// function ImageCard({ img }) {
-//   const [comment, setComment] = useState("");
-//   const { user } = useAuth();
-
-//   const submitComment = async () => {
-//     if (!comment) return;
-
-//     try {
-//       await axios.post(`${BASE_URL}/comment`, {
-//         filename: img.id,
-//         comment: comment,
-//         user_email: user.email
-//       });
-
-//       alert("Comment added");
-//       setComment("");
-//       window.location.reload(); // simple refresh
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   return (
-//     <div
-//       style={{
-//         background: "#1e293b",
-//         borderRadius: "15px",
-//         overflow: "hidden",
-//         boxShadow: "0 8px 20px rgba(0,0,0,0.3)"
-//       }}
-//     >
-//       {/* IMAGE */}
-//       <img
-//         src={img.url}
-//         alt=""
-//         style={{
-//           width: "100%",
-//           height: "200px",
-//           objectFit: "cover"
-//         }}
-//       />
-
-//       <div style={{ padding: "15px" }}>
-//         {/* CAPTION */}
-//         <h4 style={{ marginBottom: "10px" }}>
-//           {img.caption || "No caption"}
-//         </h4>
-
-//         {/* TAGS */}
-//         <div style={{ marginBottom: "10px" }}>
-//           {(img.tags || []).slice(0, 3).map((tag, i) => (
-//             <span
-//               key={i}
-//               style={{
-//                 background: "#334155",
-//                 padding: "5px 10px",
-//                 borderRadius: "20px",
-//                 marginRight: "5px",
-//                 fontSize: "12px"
-//               }}
-//             >
-//               {tag}
-//             </span>
-//           ))}
-//         </div>
-
-//         {/* COMMENTS */}
-//         <div style={{ marginTop: "10px" }}>
-//           {(img.comments || []).slice(-2).map((c, i) => (
-//             <p key={i} style={{ fontSize: "12px", opacity: 0.8 }}>
-//               💬 {c}
-//             </p>
-//           ))}
-//         </div>
-
-//         {/* ONLY CONSUMER CAN COMMENT */}
-//         {user.role === "consumer" && (
-//           <>
-//             <input
-//               placeholder="Write comment..."
-//               value={comment}
-//               onChange={(e) => setComment(e.target.value)}
-//               style={{
-//                 marginTop: "10px",
-//                 padding: "8px",
-//                 width: "100%",
-//                 borderRadius: "10px",
-//                 border: "none"
-//               }}
-//             />
-
-//             <button
-//               onClick={submitComment}
-//               style={{
-//                 marginTop: "10px",
-//                 width: "100%",
-//                 padding: "10px",
-//                 borderRadius: "10px",
-//                 background: "#3b82f6",
-//                 color: "white",
-//                 border: "none"
-//               }}
-//             >
-//               Post
-//             </button>
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ImageCard;
 
 
 
+import toast from "react-hot-toast";
 import { useState } from "react";
 import axios from "axios";
 import BASE_URL from "../api";
 import { useAuth } from "../context/AuthContext";
 
-function ImageCard({ img }) {
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
+  Sparkles
+} from "lucide-react";
+
+function ImageCard({ img, onCommentAdded }) {
+
   const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // IMAGE LOADING STATE
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // LOCAL COMMENTS STATE
+  const [comments, setComments] = useState(img.comments || []);
+
+  // SHOW/HIDE COMMENTS
+  const [showAllComments, setShowAllComments] = useState(false);
+
   const { user } = useAuth();
 
   const submitComment = async () => {
     if (!comment) return;
 
     try {
+      setLoading(true);
+
       await axios.post(`${BASE_URL}/comment`, {
         filename: img.id,
-        comment: comment,
+        comment,
         user_email: user.email
       });
 
-      alert("Comment added");
+      // UPDATE COMMENTS INSTANTLY
+      const updatedComments = [...comments, comment];
+      setComments(updatedComments);
+
+      // OPTIONAL CALLBACK
+      if (onCommentAdded) {
+        onCommentAdded(comment);
+      }
+
+      // SUCCESS TOAST
+      toast.success("Comment added");
+
+      // CLEAR INPUT
       setComment("");
-      window.location.reload(); 
+
     } catch (err) {
       console.error(err);
+
+      // ERROR TOAST
+      toast.error("Failed to post comment");
+
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        background: "#000000",
-        marginBottom: "24px",
-        borderBottom: "1px solid #262626", // IG posts usually separate by borders or space
-        paddingBottom: "16px"
-      }}
-    >
-      {/* HEADER: User info area */}
-      <div style={{ display: "flex", alignItems: "center", padding: "12px 4px" }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#262626", marginRight: "10px" }} />
-        <span style={{ fontWeight: "600", fontSize: "14px" }}>{user?.email.split('@')[0] || "username"}</span>
-        <span style={{ margin: "0 5px", color: "#a8a8a8" }}>•</span>
-        <span style={{ color: "#0095f6", fontWeight: "600", fontSize: "14px", cursor: "pointer" }}>Follow</span>
+    <div className="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden mb-10 shadow-xl">
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between px-5 py-4">
+
+        <div className="flex items-center gap-3">
+
+          {/* AVATAR */}
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 p-[2px]">
+
+            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-sm font-bold text-white">
+              {user?.email?.charAt(0).toUpperCase()}
+            </div>
+
+          </div>
+
+          {/* USER INFO */}
+          <div>
+
+            <h3 className="font-semibold text-white text-sm">
+              {img.created_by?.split("@")[0]}
+            </h3>
+
+            <p className="text-zinc-500 text-xs">
+              {img.location || "Global Media"}
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* FOLLOW BUTTON */}
+        <button className="text-blue-400 text-sm font-medium hover:text-blue-300 transition">
+          Follow
+        </button>
+
       </div>
 
-      {/* IMAGE: Full width, no rounded corners to match the feed */}
-      <img
-        src={img.url}
-        alt=""
-        style={{
-          width: "100%",
-          maxHeight: "585px",
-          objectFit: "cover",
-          border: "1px solid #262626",
-          borderRadius: "4px"
-        }}
-      />
+      {/* IMAGE */}
+      <div className="relative bg-black">
 
-      {/* ICON PLACEHOLDERS (Visual only to match your image) */}
-      <div style={{ display: "flex", padding: "12px 0", gap: "16px", fontSize: "24px" }}>
-        <span>♡</span> <span>💬</span> <span>✈️</span>
-        <span style={{ marginLeft: "auto" }}>🔖</span>
+        {!imageLoaded && (
+          <div className="absolute inset-0 animate-pulse bg-zinc-900" />
+        )}
+
+        <img
+          src={img.url}
+          alt=""
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full max-h-[700px] object-contain bg-black transition-opacity duration-500 ${
+            imageLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
       </div>
 
-      <div style={{ padding: "0 4px" }}>
-        {/* LIKES PLACEHOLDER */}
-        <div style={{ fontWeight: "600", fontSize: "14px", marginBottom: "8px" }}>0 likes</div>
+      {/* BODY */}
+      <div className="px-5 py-4">
+
+        {/* ACTION BUTTONS */}
+        <div className="flex items-center justify-between mb-4">
+
+          <div className="flex items-center gap-5">
+
+            <button className="hover:scale-110 transition">
+              <Heart size={24} />
+            </button>
+
+            <button className="hover:scale-110 transition">
+              <MessageCircle size={24} />
+            </button>
+
+            <button className="hover:scale-110 transition">
+              <Send size={24} />
+            </button>
+
+          </div>
+
+          <button className="hover:scale-110 transition">
+            <Bookmark size={24} />
+          </button>
+
+        </div>
+
+        {/* AI TAGS */}
+        {img.tags?.length > 0 && (
+
+          <div className="flex flex-wrap gap-2 mb-4">
+
+            {img.tags.slice(0, 5).map((tag, i) => (
+
+              <div
+                key={i}
+                className="bg-blue-500/10 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1"
+              >
+
+                <Sparkles size={12} />
+
+                {tag}
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
 
         {/* CAPTION */}
-        <div style={{ fontSize: "14px", lineHeight: "1.5" }}>
-          <span style={{ fontWeight: "600", marginRight: "8px" }}>{user?.email.split('@')[0] || "username"}</span>
-          {img.caption || "No caption"}
+        <div className="text-sm leading-relaxed mb-4">
+
+          <span className="font-semibold mr-2 text-white">
+            {user?.email?.split("@")[0]}
+          </span>
+
+          <span className="text-zinc-300">
+            {img.caption || "No caption"}
+          </span>
+
         </div>
 
-        {/* TAGS */}
-        <div style={{ marginTop: "8px" }}>
-          {(img.tags || []).slice(0, 3).map((tag, i) => (
-            <span
-              key={i}
-              style={{
-                color: "#00376b", // IG tag blue
-                marginRight: "5px",
-                fontSize: "14px"
-              }}
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
+        {/* VIEW COMMENTS BUTTON */}
+        {comments.length > 2 && !showAllComments && (
+
+          <button
+            onClick={() => setShowAllComments(true)}
+            className="text-zinc-500 text-sm hover:text-zinc-300 transition mb-3"
+          >
+            View all {comments.length} comments
+          </button>
+
+        )}
 
         {/* COMMENTS */}
-        <div style={{ marginTop: "10px" }}>
-          {(img.comments || []).length > 0 && (
-            <div style={{ color: "#a8a8a8", fontSize: "14px", marginBottom: "8px", cursor: "pointer" }}>
-              View all {(img.comments || []).length} comments
+        <div className="space-y-2 mb-4">
+
+          {(showAllComments
+            ? comments
+            : comments.slice(-2)
+          ).map((c, i) => (
+
+            <div key={i} className="text-sm">
+
+              <span className="font-semibold mr-2 text-white">
+                user
+              </span>
+
+              <span className="text-zinc-400">
+                {c}
+              </span>
+
             </div>
-          )}
-          {(img.comments || []).slice(-2).map((c, i) => (
-            <p key={i} style={{ fontSize: "14px", margin: "4px 0" }}>
-              <span style={{ fontWeight: "600", marginRight: "8px" }}>user</span> {c}
-            </p>
+
           ))}
+
         </div>
 
-        {/* ONLY CONSUMER CAN COMMENT */}
-        {user.role === "consumer" && (
-          <div style={{ display: "flex", alignItems: "center", marginTop: "12px", borderTop: "1px solid #262626", paddingTop: "8px" }}>
+        {/* COMMENT BOX */}
+        {user?.role === "consumer" && (
+
+          <div className="flex items-center gap-3 border border-zinc-800 bg-zinc-900 rounded-2xl px-4 py-2">
+
             <input
               placeholder="Add a comment..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              style={{
-                flex: 1,
-                background: "transparent",
-                color: "white",
-                padding: "8px 0",
-                border: "none",
-                outline: "none",
-                fontSize: "14px"
-              }}
+              className="bg-transparent flex-1 outline-none text-sm text-white"
             />
+
             <button
               onClick={submitComment}
-              style={{
-                background: "transparent",
-                color: comment ? "#0095f6" : "#00376b",
-                border: "none",
-                fontWeight: "600",
-                cursor: comment ? "pointer" : "default",
-                fontSize: "14px"
-              }}
-              disabled={!comment}
+              disabled={!comment || loading}
+              className="text-blue-400 font-medium text-sm disabled:text-zinc-600 hover:text-blue-300 transition"
             >
-              Post
+              {loading ? "Posting..." : "Post"}
             </button>
+
           </div>
+
         )}
+
       </div>
     </div>
   );

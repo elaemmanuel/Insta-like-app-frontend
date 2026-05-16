@@ -1,34 +1,3 @@
-// import Navbar from "../components/Navbar";
-// import Sidebar from "../components/Sidebar";
-
-// function MainLayout({ children }) {
-//   return (
-//     <div
-//       style={{
-//         display: "flex",
-//         background: "#0f172a",
-//         color: "white",
-//         minHeight: "100vh"
-//       }}
-//     >
-//       {/* SIDEBAR */}
-//       <Sidebar />
-
-//       {/* MAIN */}
-//       <div style={{ flex: 1 }}>
-//         <Navbar />
-
-//         <div style={{ padding: "20px" }}>
-//           {children}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default MainLayout;
-
-
 
 
 import Navbar from "../components/Navbar";
@@ -36,37 +5,25 @@ import Sidebar from "../components/Sidebar";
 
 function MainLayout({ children }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        background: "#000000", // Changed to pure black
-        color: "#ffffff",      // Pure white text
-        minHeight: "100vh",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
-      }}
-    >
-      {/* SIDEBAR - Fixed width typical of IG layout */}
-      <div style={{ width: "245px", borderRight: "1px solid #262626" }}>
+    <div className="min-h-screen bg-black text-white flex">
+      
+      {/* SIDEBAR */}
+      <div className="w-[260px] hidden md:block">
         <Sidebar />
       </div>
 
-      {/* MAIN CONTAINER */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* MAIN AREA */}
+      <div className="flex-1 flex flex-col">
+        
+        {/* NAVBAR */}
         <Navbar />
 
-        {/* FEED AREA - Centered and restricted width like the image */}
-        <div 
-          style={{ 
-            padding: "20px 0", 
-            display: "flex", 
-            justifyContent: "center",
-            width: "100%"
-          }}
-        >
-          <div style={{ width: "100%", maxWidth: "470px" }}>
+        {/* PAGE CONTENT */}
+        <main className="flex-1 px-6 py-6">
+          <div className="max-w-6xl mx-auto">
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
